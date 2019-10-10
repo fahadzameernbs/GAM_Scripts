@@ -183,17 +183,6 @@ FROM atomic.dwt41141_account_dtl mdms
    AND LPAD (mdms.affiliate_code,'3','0') = sg_gam.affiliate_code
 WHERE mdms.business_entity_code <> '';  -- 1783222
 
-
-
-0109999999
-SELECT COUNT(*)
-FROM atomic.dwt41141_account_dtl mdms
-WHERE mdms.business_entity_code <> '' and mdms.;
-
-
-
-
-
 --LEGACY
 SELECT COUNT(*)
 FROM atomic_legacy.dwt41042_distb_dtl legacy
@@ -1129,7 +1118,8 @@ WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   legacy.Business_Entity_Code <> ''
 AND gam.imc_type_code = legacy.imc_type_code;  --77138519
 
-SELECT COUNT(*)
+SELECT gam.imc_type_code, legacy.imc_type_code, gam.source_name
+--COUNT(*)
 FROM curated_integration.global_account_master gam
   JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
   JOIN atomic.wwt01020_aff_mst am_valid_aff
@@ -1137,7 +1127,7 @@ FROM curated_integration.global_account_master gam
 	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   legacy.Business_Entity_Code <> ''
-AND gam.imc_type_code <> legacy.imc_type_code;  --12654223
+AND gam.imc_type_code <> legacy.imc_type_code limit 10;  --12654223
 
 select 77138519+12654223;  --89792742
 
