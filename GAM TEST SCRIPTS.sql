@@ -244,10 +244,9 @@ FROM curated_integration.global_account_master gam
   
 -- 2. global_account_id
 
-
 --MUST BE A NUMBER (QR)
 SELECT COUNT(*)
-FROM curated_integration.global_account_master gam WHERE gam.global_account_id ~ '^[0-9]+$' = 'TRUE';  --91486521 91486527
+FROM curated_integration.global_account_master gam WHERE gam.global_account_id ~ '^[0-9]+$' = 'TRUE';  --91486521
 
 --MUST BE UNIQUE (QR)
 SELECT COUNT(*),
@@ -255,12 +254,6 @@ SELECT COUNT(*),
 FROM curated_integration.global_account_master gam
 GROUP BY 2
 HAVING COUNT(*) > 1 LIMIT 10;
-
-SELECT COUNT(*)
-FROM curated_integration.global_account_master gam WHERE gam.global_account_id ~ '^[0-9]+$' = 'TRUE';  --91486274
-
-SELECT gam.global_account_id
-FROM curated_integration.global_account_master gam WHERE gam.global_account_id ~ '^[0-9]+$' = 'FALSE';  --91486274
 
 --MDMS
 SELECT COUNT(*)
@@ -471,9 +464,14 @@ FROM curated_integration.global_account_master gam
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
 AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
-AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.abo_number = SUBSTRING(atlas.imc_number,4)::BIGINT; -- 1105732
+AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.abo_number = SUBSTRING(atlas.imc_number,4)::BIGINT; -- 1089303
 
 -- 5. affiliate_code
+
+--MUST NOT BE BLANK (QR)
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+WHERE gam.affiliate_code IS NULL OR gam.affiliate_code = '';  --0
 
 --MDMS
 SELECT COUNT(*)
@@ -505,9 +503,14 @@ FROM curated_integration.global_account_master gam
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
 AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
-AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.affiliate_code = NVL(atlas.intgrt_aff_cd, atlas.sales_plan_affiliate); -- 1105732
+AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.affiliate_code = NVL(atlas.intgrt_aff_cd, atlas.sales_plan_affiliate); -- 1089303
 
 -- 6. affiliate_name
+
+--MUST NOT BE BLANK (QR)
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+WHERE gam.affiliate_name IS NULL OR gam.affiliate_name = '';  --0
 
 --MDMS
 SELECT COUNT(*)
@@ -524,8 +527,9 @@ FROM curated_integration.global_account_master gam
   JOIN atomic.wwt01020_aff_mst am_valid_aff
 		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
 	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+	JOIN atomic_legacy.dwt12011_aff_cntry_mst ndt_aff_cntry_mst ON legacy.business_entity_code = ndt_aff_cntry_mst.amway_cntry_cd
 WHERE (CONCAT(mdms.affiliate_code,mdms.abo_no) IS NULL OR mdms.business_entity_code = '')
-AND   legacy.Business_Entity_Code <> '' AND gam.affiliate_code = LPAD(legacy.affiliate_code,'3','0'); -- 89742352
+AND   legacy.Business_Entity_Code <> '' AND gam.affiliate_name = ndt_aff_cntry_mst.aff_desc; -- 89792741
 
 --ATLAS
 SELECT COUNT(*)
@@ -538,12 +542,18 @@ FROM curated_integration.global_account_master gam
              FROM atomic_legacy.dwt41042_distb_dtl distb
                JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
   LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+  JOIN atomic_legacy.dwt12011_aff_cntry_mst ndt_aff_cntry_mst ON atlas.home_country = ndt_aff_cntry_mst.iso_cntry_cd
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
 AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
-AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.affiliate_code = NVL(atlas.intgrt_aff_cd, atlas.sales_plan_affiliate); -- 1087477
+AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.affiliate_name = ndt_aff_cntry_mst.aff_nm; -- 1089303
 
 --7. business_entity_code
+
+--MUST NOT BE BLANK (QR)
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+WHERE gam.business_entity_code IS NULL OR gam.business_entity_code = '';  --0
 
 --MDMS
 SELECT COUNT(*)
@@ -576,9 +586,14 @@ FROM curated_integration.global_account_master gam
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
 AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
-AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.business_entity_code = tmp.amway_cntry_cd;  --1087477
+AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.business_entity_code = tmp.amway_cntry_cd;  --1089303
 
 --8. country_name
+
+--MUST NOT BE BLANK (QR)
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+WHERE gam.country_name IS NULL OR gam.country_name = '';  --0
 
 --MDMS
 SELECT COUNT(*)
@@ -617,6 +632,11 @@ AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
 AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.country_name = ndt_aff_cntry_mst.cntry_nm;  --1087477
 
 --9. region
+
+--MUST NOT BE BLANK (QR)
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+WHERE gam.region IS NULL OR gam.region = '';
 
 --MDMS
 SELECT COUNT(*)
@@ -658,6 +678,11 @@ AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
 AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.region = ndt_rgn_dim.rgn_desc;  --1087477
 
 --10. sub_region
+
+--MUST NOT BE BLANK (QR)
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+WHERE gam.sub_region IS NULL OR gam.sub_region = '';  --0
 
 --MDMS
 SELECT COUNT(*)
@@ -701,6 +726,21 @@ AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
 AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.sub_region = ndt_sub_rgn_dim.sub_rgn_desc;  --1087477
 
 --11. iso_currency_code
+
+--MUST BE UPPER CASE (QR)
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+WHERE gam.iso_currency_code = UPPER( gam.iso_currency_code);  --91486527
+
+--Must be exactly 3 characters long (QR)
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+WHERE gam.iso_currency_code <> '' AND LENGTH( gam.iso_currency_code) < 3;  --91468368
+
+--MUST BE ALL LETTERS (QR)
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+WHERE gam.iso_currency_code <> '' AND gam.iso_currency_code ~ '^[A-Z]+$' = 'TRUE';  --56732862
 
 --MDMS
 SELECT COUNT(*)
