@@ -50,11 +50,31 @@ SELECT gam.iso_currency_code
 FROM curated_integration.global_account_master gam
 WHERE gam.iso_currency_code <> '' AND gam.iso_currency_code ~ '^[A-Z]+$' = 'FALSE' LIMIT 10;
 
+---------------------------------------------account_name
 
+-- MUST NOT START AND END WITH SPACE (QR)
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+WHERE gam.account_name <> ''
+AND gam.account_name IS NOT NULL AND (substring(gam.account_name,1,1) = '' OR substring(gam.account_name,LENGTH(gam.account_name),1) = '');
 
+--MUST NOT BE BLANK (QR)
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+WHERE gam.account_name = ''
+OR gam.account_name IS NULL;
 
+--SPECIAL CHARACTERS ARE NOT ALLOWED (QR)
+SELECT gam.account_name
+FROM curated_integration.global_account_master gam
+WHERE gam.account_name ~ '^[#+,".<>/\|{}-]+$' = 'TRUE' limit 10;
+--'^[#$%&()*+,\-./:;<=>?@[\\\]^`{|}~]+$'
 
+---------------------------------------------business_status_code
 
-
-
+--MUST NOT BE BLANK (QR)
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+WHERE gam.business_status_code = ''
+OR gam.business_status_code IS NULL;
 
