@@ -78,3 +78,30 @@ FROM curated_integration.global_account_master gam
 WHERE gam.business_status_code = ''
 OR gam.business_status_code IS NULL;
 
+---------------------------------------------business_status
+
+--MUST NOT BE BLANK (QR)
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+WHERE gam.business_status = ''
+OR gam.business_status IS NULL;  --8352
+
+---------------------------------------------account_segment_code
+
+--MUST NOT BE BLANK (QR)
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+WHERE gam.account_segment_code = ''
+OR gam.account_segment_code IS NULL;  --25498
+
+---------------------------------------------line_of_affiliation_code
+
+--MEST ONLY ALLOW NUMERIC VALUES (QR)
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+WHERE TRIM(gam.line_of_affiliation_code) <> '' AND gam.line_of_affiliation_code IS NOT NULL AND gam.line_of_affiliation_code ~ '^[0-9]+$' = 'FALSE';
+
+
+
+
+
