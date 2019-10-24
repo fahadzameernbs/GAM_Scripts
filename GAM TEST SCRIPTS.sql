@@ -22,16 +22,16 @@ SELECT COUNT(*) FROM public.temp_dwt12011_qa;  --65
 --------------------------------------------1. CHECK COUNTS---------------------------------------------------------------------
 
 --GAM COUNT
-SELECT COUNT(*) FROM curated_integration.global_account_master; -- 91900696
+SELECT COUNT(*) FROM curated_integration.global_account_master; -- 92106732
 --SG_GAM COUNT
-SELECT COUNT(*) FROM surrogate.sg_global_account_master; -- 92364770
+SELECT COUNT(*) FROM surrogate.sg_global_account_master; -- 92562743
 
 
 ---- ROWS that must came into gam
 
 -- MDMS
 SELECT COUNT(*)
-FROM atomic.dwt41141_account_dtl WHERE business_entity_code <> ''; -- 1655251
+FROM atomic.dwt41141_account_dtl WHERE business_entity_code <> ''; -- 8875996
 
 -- LEGACY
 SELECT COUNT(*)
@@ -40,7 +40,7 @@ FROM atomic_legacy.dwt41042_distb_dtl legacy
 		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
 	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT ( LPAD( legacy.affiliate_code,'3','0'), legacy.abo_no) = CONCAT ( LPAD( mdms.affiliate_code,'3','0'), mdms.abo_no)
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
-AND TRIM(legacy.business_entity_code) <> '';  -- 89652712
+AND TRIM(legacy.business_entity_code) <> '';  -- 82124129
 
 -- ATLAS
 SELECT COUNT(*)
@@ -55,10 +55,10 @@ FROM atomic_legacy.dwt40016_imc atlas
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
 AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
-AND   TRIM(tmp.amway_cntry_cd) <> ''; -- 592733
+AND   TRIM(tmp.amway_cntry_cd) <> ''; -- 1109273
 
 --TOTAL
-SELECT 1655251 + 89652712 + 592733; -- 91900696
+SELECT 8875996 + 82124129 + 1109273; -- 92109398
 
 
 ---- In actual rows came into gam
@@ -67,7 +67,7 @@ SELECT 1655251 + 89652712 + 592733; -- 91900696
 SELECT COUNT(*)
 FROM curated_integration.global_account_master gam
   JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
-WHERE mdms.business_entity_code <> '';  --1655253
+WHERE mdms.business_entity_code <> '';  --8875996
 
 --LEGACY
 SELECT COUNT(*)
@@ -77,7 +77,7 @@ FROM curated_integration.global_account_master gam
 		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
 	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT ( LPAD( legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
 WHERE (mdms.affiliate_code IS NULL OR mdms.business_entity_code = '')
-AND   TRIM(legacy.Business_Entity_Code) <> '';  --89652712
+AND   TRIM(legacy.Business_Entity_Code) <> '';  --82124129
 
 --ATLAS
 SELECT COUNT(*)
@@ -93,10 +93,10 @@ FROM curated_integration.global_account_master gam
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
 AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
-AND   TRIM(tmp.amway_cntry_cd) <> ''; -- 592733
+AND   TRIM(tmp.amway_cntry_cd) <> ''; -- 1109273
 
 --TOTAL
-SELECT 1655251 + 89652712 + 592733; -- 91900696
+SELECT 8875996 + 82124129 + 1109273; -- 92109398
 
 
 ----------------------------------------------------------2. CHECK DUPLICATES FOR DRIVER TABLES---------------------------------
@@ -125,7 +125,6 @@ HAVING COUNT(*) > 1 LIMIT 10;  --0
 SELECT COUNT(*)
 FROM atomic_legacy.dwt41042_distb_dtl
 WHERE length(trim(affiliate_code))<3;  --0
-
 
 --ATLAS
 SELECT LPAD(atlas.imc_number,'3','0'),
@@ -185,7 +184,7 @@ FROM atomic.dwt41141_account_dtl mdms
   JOIN surrogate.sg_global_account_master sg_gam
     ON mdms.abo_no = sg_gam.abo_number
    AND LPAD (mdms.affiliate_code,'3','0') = sg_gam.affiliate_code
-WHERE mdms.business_entity_code <> '';  -- 4944827
+WHERE mdms.business_entity_code <> '';  -- 8874962
 
 --LEGACY
 SELECT COUNT(*)
@@ -197,7 +196,7 @@ FROM atomic_legacy.dwt41042_distb_dtl legacy
    AND LPAD (legacy.affiliate_code,'3','0') = sg_gam.affiliate_code
    LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD( legacy.affiliate_code,'3','0'), legacy.abo_no) = CONCAT (LPAD( mdms.affiliate_code,'3','0'), mdms.abo_no)
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
-AND   legacy.Business_Entity_Code <> '';  -- 85878647
+AND   legacy.Business_Entity_Code <> '';  -- 82122497
 
 --ATLAS
 SELECT COUNT(*) FROM surrogate.sg_global_account_master sgam
@@ -214,9 +213,9 @@ SELECT COUNT(*) FROM surrogate.sg_global_account_master sgam
         ON atlas.imc_number = CONCAT(LPAD( mdms.affiliate_code,3,'0'),mdms.abo_no)
     WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
         AND (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
-        AND TRIM(atlas.imc_type) <> 'INTERCOMPANY' AND TRIM(tmp.amway_cntry_cd) <> '';  --1108582
+        AND TRIM(atlas.imc_type) <> 'INTERCOMPANY' AND TRIM(tmp.amway_cntry_cd) <> '';  --1109273
  
-SELECT 4944827 + 85878647 + 1108582;  --91931919
+SELECT 8874962 + 82122497 + 1109273;  --92106732
 
 ---------------------------------------------------4. FIELD BY FIELD TESTING----------------------------------------  91486527
 -- 1. global_account_wid
@@ -897,14 +896,48 @@ SELECT 1082635 + 655 + 4187;  --1087477
 
 --13. signed_contract_date
 
---MDMS
+--MDMS  1673641
 SELECT COUNT(*)
 FROM curated_integration.global_account_master gam
   JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN public.qa_dwt41151_account_party_cntrc ndt_account_party_cntrc 
+    ON LPAD(mdms.affiliate_code,3,'0') = LPAD(ndt_account_party_cntrc.aff,3,'0')
+    AND mdms.abo_no = ndt_account_party_cntrc.abo_number
 WHERE mdms.business_entity_code <> ''
-AND   gam.signed_contract_date = mdms.entry_date::DATE;  --604481
+AND   gam.signed_contract_date = ndt_account_party_cntrc.sign_date::DATE;  --1242
 
---LEGACY
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN public.qa_dwt41151_account_party_cntrc ndt_account_party_cntrc 
+    ON LPAD(mdms.affiliate_code,3,'0') = LPAD(ndt_account_party_cntrc.aff,3,'0')
+    AND mdms.abo_no = ndt_account_party_cntrc.abo_number
+WHERE mdms.business_entity_code <> ''  --1272
+AND   (ndt_account_party_cntrc.sign_date IS NULL OR TRIM(ndt_account_party_cntrc.sign_date) = '')
+AND   gam.signed_contract_date = '19000101'::DATE;  --30
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN public.qa_dwt41151_account_party_cntrc ndt_account_party_cntrc 
+    ON LPAD(mdms.affiliate_code,3,'0') = LPAD(ndt_account_party_cntrc.aff,3,'0')
+    AND mdms.abo_no = ndt_account_party_cntrc.abo_number
+WHERE mdms.business_entity_code <> ''
+AND   gam.signed_contract_date <> ndt_account_party_cntrc.sign_date::DATE;  --0
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  LEFT JOIN public.qa_dwt41151_account_party_cntrc ndt_account_party_cntrc 
+    ON LPAD(mdms.affiliate_code,3,'0') = ndt_account_party_cntrc.aff
+    AND mdms.abo_no = ndt_account_party_cntrc.abo_number
+WHERE mdms.business_entity_code <> ''
+AND   ndt_account_party_cntrc.aff IS NULL
+AND   gam.signed_contract_date = '19000101'::DATE;  --1672369
+
+SELECT 1242 + 30 + 1672369;  --1673641
+
+--LEGACY    --89648859
 SELECT COUNT(*)
 FROM curated_integration.global_account_master gam
   JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
@@ -914,7 +947,7 @@ FROM curated_integration.global_account_master gam
   JOIN public.dwt41036_ddatbat_qa ndt_ddatbat_qa ON ndt_ddatbat_qa.intgrt_ctl_aff = LPAD(legacy.affiliate_code,'3','0') AND ndt_ddatbat_qa.distb_nbr = legacy.abo_no
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   legacy.Business_Entity_Code <> ''
-AND gam.signed_contract_date = ndt_ddatbat_qa.db_dt::DATE;  --269935
+AND gam.signed_contract_date = ndt_ddatbat_qa.db_dt::DATE;  --254461
 
 SELECT COUNT(*)
 FROM curated_integration.global_account_master gam
@@ -925,11 +958,22 @@ FROM curated_integration.global_account_master gam
   LEFT JOIN public.dwt41036_ddatbat_qa ndt_ddatbat_qa ON ndt_ddatbat_qa.intgrt_ctl_aff = LPAD(legacy.affiliate_code,'3','0') AND ndt_ddatbat_qa.distb_nbr = legacy.abo_no
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   legacy.Business_Entity_Code <> ''
-AND ndt_ddatbat_qa.intgrt_ctl_aff IS NULL AND gam.signed_contract_date = '19000101'::DATE; -- 89522807
+AND ndt_ddatbat_qa.intgrt_ctl_aff IS NULL AND gam.signed_contract_date = '19000101'::DATE; -- 89394398
 
-SELECT 269935 + 89522807; -- 89792742
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+  LEFT JOIN public.dwt41036_ddatbat_qa ndt_ddatbat_qa ON ndt_ddatbat_qa.intgrt_ctl_aff = LPAD(legacy.affiliate_code,'3','0') AND ndt_ddatbat_qa.distb_nbr = legacy.abo_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND ndt_ddatbat_qa.intgrt_ctl_aff IS NULL AND gam.signed_contract_date <> '19000101'::DATE; -- 0
 
---ATLAS
+SELECT 254461 + 89394398 + 0; -- 89648859
+
+--ATLAS   592724
 SELECT COUNT(*)
 FROM curated_integration.global_account_master gam
   JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
@@ -943,7 +987,29 @@ FROM curated_integration.global_account_master gam
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
 AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
-AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.signed_contract_date = atlas.signed_form_received_date::DATE;  --1087477
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND   TRIM(atlas.signed_form_received_date) <> ''
+AND   atlas.signed_form_received_date IS NOT NULL
+AND gam.signed_contract_date = atlas.signed_form_received_date::DATE;  --442420
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND   (TRIM(atlas.signed_form_received_date) = '' OR atlas.signed_form_received_date IS NULL)
+AND   gam.signed_contract_date = '19000101'::DATE;  --150304
+
+SELECT 442420 + 150304;  --592724
 
 
 --14. expiration_date                  ----------------------------------------------NEED TO REVIEW
@@ -969,7 +1035,7 @@ CASE
    WHEN (SUBSTRING(mdms.expiration_date,1,4)::INT % 4 = 0 AND SUBSTRING(mdms.expiration_date,6,2)::INT = 02 AND SUBSTRING(mdms.expiration_date,9,2)::INT > 29) THEN (SUBSTRING(mdms.expiration_date,1,4) || (SUBSTRING(mdms.expiration_date,6,2)::INT +1) || '01')::DATE
    ELSE
    mdms.expiration_date::DATE
-END;  --604483
+END;  --609526
 
 --LEGACY
 SELECT COUNT(*)
@@ -1122,7 +1188,6 @@ FROM curated_integration.global_account_master gam
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   legacy.Business_Entity_Code <> ''
 AND gam.account_name = legacy.account_name;  --89792742
-
 
 --ATLAS
 SELECT COUNT(*)
@@ -1811,14 +1876,211 @@ FROM curated_integration.global_account_master gam
   JOIN surrogate.sg_global_account_master sg_gam ON sg_gam.affiliate_code = gam.affiliate_code AND sg_gam.abo_number = ndt_ibo_inf_mst.spon_ibo_no
 WHERE gam.sponsor_global_account_wid = sg_gam.global_account_wid;  --1566147   1657540
 
-
-
-
---SG_GAM
+--LEGACY
 SELECT COUNT(*)
 FROM curated_integration.global_account_master gam
-  JOIN surrogate.sg_global_account_master sg_gam ON sg_gam.affiliate_code = gam.affiliate_code AND sg_gam.abo_number = gam.abo_number
-  WHERE gam.sponsor_global_account_wid = sg_gam.global_account_wid;
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+	JOIN atomic.wwt01080_ibo_inf_mst ndt_ibo_inf_mst ON LPAD (legacy.affiliate_code,3,'0') = LPAD (ndt_ibo_inf_mst.aff_id,3,'0') AND legacy.abo_no = ndt_ibo_inf_mst.ibo_no
+  JOIN surrogate.sg_global_account_master sg_gam ON sg_gam.affiliate_code = gam.affiliate_code AND sg_gam.abo_number = ndt_ibo_inf_mst.spon_ibo_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.business_entity_code <> ''
+AND   gam.sponsor_global_account_wid = sg_gam.global_account_wid;  --1566147   1657540
+
+--ATLAS
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+  JOIN atomic.wwt01080_ibo_inf_mst ndt_ibo_inf_mst ON atlas.imc_number = CONCAT( LPAD (ndt_ibo_inf_mst.aff_id,3,'0'), ndt_ibo_inf_mst.ibo_no)
+  JOIN surrogate.sg_global_account_master sg_gam ON sg_gam.affiliate_code = gam.affiliate_code AND sg_gam.abo_number = ndt_ibo_inf_mst.spon_ibo_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND   gam.sponsor_global_account_wid = sg_gam.global_account_wid;  --592724
+
+--31. sponsor_global_account_id       *****************************TODO***************************
+
+--MDMS
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN atomic.wwt01020_aff_mst ndt_aff_mst
+    ON ndt_aff_mst.aff_id = LPAD( mdms.affiliate_code,3,'0')::SMALLINT
+    AND mdms.ABO_No = ndt_aff_mst.amway_alias_ibo_no
+WHERE gam.sponsor_global_account_id = ndt_aff_mst.amway_alias_ibo_no;  --1566147   1657540
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN atomic.wwt01020_aff_mst ndt_aff_mst
+    ON ndt_aff_mst.aff_id = LPAD( mdms.affiliate_code,3,'0')::SMALLINT
+    AND mdms.ABO_No = ndt_aff_mst.amway_alias_ibo_no
+  JOIN atomic.wwt01080_ibo_inf_mst ndt_ibo_inf_mst ON LPAD (mdms.affiliate_code,3,'0') = LPAD (ndt_ibo_inf_mst.aff_id,3,'0') AND mdms.abo_no = ndt_ibo_inf_mst.ibo_no
+  --JOIN  atomic.wwt01020_aff_mst ndt_aff_mst ON ndt_aff_mst.aff_id::SMALLINT = 10
+WHERE gam.sponsor_global_account_id = 
+   CASE
+        WHEN ndt_aff_mst.amway_alias_ibo_no IS NULL THEN CONCAT( LPAD (mdms.affiliate_code,3,'0'),ndt_ibo_inf_mst.spon_ibo_no)
+        ELSE lpad(ndt_aff_mst.aff_id, 3, '0') || ndt_aff_mst.amway_alias_ibo_no --'0109995'
+   END;
+
+--LEGACY
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+	JOIN atomic.wwt01080_ibo_inf_mst ndt_ibo_inf_mst ON LPAD (legacy.affiliate_code,3,'0') = LPAD (ndt_ibo_inf_mst.aff_id,3,'0') AND legacy.abo_no = ndt_ibo_inf_mst.ibo_no
+  JOIN surrogate.sg_global_account_master sg_gam ON sg_gam.affiliate_code = gam.affiliate_code AND sg_gam.abo_number = ndt_ibo_inf_mst.spon_ibo_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.business_entity_code <> ''
+AND   gam.sponsor_global_account_wid = sg_gam.global_account_wid;  --1566147   1657540
+
+--ATLAS
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+  JOIN atomic.wwt01080_ibo_inf_mst ndt_ibo_inf_mst ON atlas.imc_number = CONCAT( LPAD (ndt_ibo_inf_mst.aff_id,3,'0'), ndt_ibo_inf_mst.ibo_no)
+  JOIN surrogate.sg_global_account_master sg_gam ON sg_gam.affiliate_code = gam.affiliate_code AND sg_gam.abo_number = ndt_ibo_inf_mst.spon_ibo_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND   gam.sponsor_global_account_wid = sg_gam.global_account_wid;  --592724
+
+--32. sponsor_abo_number
+
+--MDMS
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN atomic.wwt01080_ibo_inf_mst ndt_ibo_inf_mst ON LPAD (mdms.affiliate_code,3,'0') = LPAD (ndt_ibo_inf_mst.aff_id,3,'0') AND mdms.abo_no = ndt_ibo_inf_mst.ibo_no
+WHERE gam.sponsor_abo_number = ndt_ibo_inf_mst.spon_ibo_no;  --1680913
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  LEFT JOIN atomic.wwt01080_ibo_inf_mst ndt_ibo_inf_mst ON LPAD (mdms.affiliate_code,3,'0') = LPAD (ndt_ibo_inf_mst.aff_id,3,'0') AND mdms.abo_no = ndt_ibo_inf_mst.ibo_no
+WHERE ndt_ibo_inf_mst.aff_id IS NULL
+AND gam.sponsor_abo_number <> mdms.sponsor_abo_no;  --108000
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  LEFT JOIN atomic.wwt01080_ibo_inf_mst ndt_ibo_inf_mst ON LPAD (mdms.affiliate_code,3,'0') = LPAD (ndt_ibo_inf_mst.aff_id,3,'0') AND mdms.abo_no = ndt_ibo_inf_mst.ibo_no
+WHERE ndt_ibo_inf_mst.aff_id IS NULL
+AND gam.sponsor_abo_number <> mdms.sponsor_abo_no;  --5
+
+SELECT 1680913 + 108000;  --1788913
+
+--LEGACY
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+	JOIN atomic.wwt01080_ibo_inf_mst ndt_ibo_inf_mst ON LPAD (legacy.affiliate_code,3,'0') = LPAD (ndt_ibo_inf_mst.aff_id,3,'0') AND legacy.abo_no = ndt_ibo_inf_mst.ibo_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.business_entity_code <> ''  --74340525
+AND   gam.sponsor_abo_number = ndt_ibo_inf_mst.spon_ibo_no;  --74340525
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+	LEFT JOIN atomic.wwt01080_ibo_inf_mst ndt_ibo_inf_mst ON LPAD (legacy.affiliate_code,3,'0') = LPAD (ndt_ibo_inf_mst.aff_id,3,'0') AND legacy.abo_no = ndt_ibo_inf_mst.ibo_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.business_entity_code <> ''
+AND   ndt_ibo_inf_mst.aff_id IS NULL
+AND   gam.sponsor_abo_number = legacy.sponsor_abo_no;  --15323163
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+	LEFT JOIN atomic.wwt01080_ibo_inf_mst ndt_ibo_inf_mst ON LPAD (legacy.affiliate_code,3,'0') = LPAD (ndt_ibo_inf_mst.aff_id,3,'0') AND legacy.abo_no = ndt_ibo_inf_mst.ibo_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.business_entity_code <> ''
+AND   ndt_ibo_inf_mst.aff_id IS NULL
+AND   legacy.sponsor_abo_no IS NULL
+AND   gam.sponsor_abo_number IS NULL;  --405
+
+SELECT 74340525 + 15323163 + 405;  --89664093
+
+--ATLAS
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+	JOIN atomic.wwt01080_ibo_inf_mst ndt_ibo_inf_mst ON atlas.imc_number = CONCAT( LPAD (ndt_ibo_inf_mst.aff_id,3,'0'), ndt_ibo_inf_mst.ibo_no)
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND   gam.sponsor_abo_number = ndt_ibo_inf_mst.spon_ibo_no;  --591831
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+	LEFT JOIN atomic.wwt01080_ibo_inf_mst ndt_ibo_inf_mst ON atlas.imc_number = CONCAT( LPAD (ndt_ibo_inf_mst.aff_id,3,'0'), ndt_ibo_inf_mst.ibo_no)
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND   ndt_ibo_inf_mst.aff_id IS NULL
+AND   gam.sponsor_abo_number = SUBSTRING(atlas.sponsor_no,4);  --1745
+
+--33, 34, 35. international_sponsor_global_account_wid, international_sponsor_abo_number, international_sponsor_affiliate_code
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN surrogate.sg_global_account_master sg
+    ON gam.international_sponsor_affiliate_code = sg.affiliate_code
+   AND gam.international_sponsor_abo_number = sg.abo_number
+	WHERE gam.international_sponsor_global_account_wid = sg.global_account_wid; -- 92106732
+	
+--36. source_name
+
+--MDMS
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+WHERE gam.source_name = 'dwt41141_account_dtl';  --1788918
 
 --LEGACY
 SELECT COUNT(*)
@@ -1829,7 +2091,7 @@ FROM curated_integration.global_account_master gam
 	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   legacy.business_entity_code <> ''
-AND gam.line_of_affiliation_code = legacy.line_of_affiliation_code;  --89652688
+AND   gam.source_name = 'dwt41042_distb_dtl';  --1566147
 
 --ATLAS
 SELECT COUNT(*)
@@ -1846,23 +2108,217 @@ WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
 AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
 AND   TRIM(tmp.amway_cntry_cd) <> ''
-AND   gam.line_of_affiliation_code = atlas.loa;  --592724
+AND   gam.source_name = 'dwt40016_imc'; --1566147
 
-
-
-
-
-
-
-
---15. application_entry_date  --------------------------------------------------------------TODO
+--37. application_entry_date
 
 --MDMS
 SELECT COUNT(*)
 FROM curated_integration.global_account_master gam
   JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
 WHERE mdms.business_entity_code <> ''
-AND   gam.application_entry_date = mdms.entry_date::DATE;  --604481
+AND 
+CASE
+WHEN imd1.curr_appl_dt_key_no - imd1.appl_dt_key_no > 365 THEN gam.application_entry_date = imd1.curr_appl_dt_key_no::VARCHAR(10)::DATE
+ELSE
+gam.application_entry_date = imd1.appl_dt_key_no::VARCHAR(10)::DATE
+END;  --470973
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE mdms.business_entity_code <> ''
+AND 
+CASE
+WHEN imd1.curr_appl_dt_key_no - imd1.appl_dt_key_no > 365
+  THEN gam.application_entry_date <> imd1.curr_appl_dt_key_no::VARCHAR(10)::DATE
+  AND gam.wd_first_insert_timestamp <> mdms.updt_dt
+ELSE
+  gam.application_entry_date <> imd1.appl_dt_key_no::VARCHAR(10)::DATE
+  AND gam.wd_first_insert_timestamp <> mdms.updt_dt
+END;  --8961
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  LEFT JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE mdms.business_entity_code <> ''
+AND imd1.imc_aff_id IS NULL
+AND gam.application_entry_date = mdms.entry_date::DATE;  --124549
+
+SELECT 470973 + 8961 + 124549;  --604483
+
+--LEGACY
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT (LPAD (legacy.affiliate_code,'3','0'),legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (legacy.affiliate_code) = '' THEN 0 ELSE legacy.affiliate_code::SMALLINT END
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD (legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (CONCAT(mdms.affiliate_code,mdms.abo_no) IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND 
+CASE
+WHEN imd1.curr_appl_dt_key_no - imd1.appl_dt_key_no > 365 THEN gam.application_entry_date = imd1.curr_appl_dt_key_no::VARCHAR(10)::DATE
+ELSE
+gam.application_entry_date = imd1.appl_dt_key_no::VARCHAR(10)::DATE
+END;  --88701190
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT (LPAD (legacy.affiliate_code,'3','0'),legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (legacy.affiliate_code) = '' THEN 0 ELSE legacy.affiliate_code::SMALLINT END
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD (legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND 
+CASE
+WHEN imd1.curr_appl_dt_key_no - imd1.appl_dt_key_no > 365 
+  THEN gam.application_entry_date <> imd1.curr_appl_dt_key_no::VARCHAR(10)::DATE
+ELSE
+  gam.application_entry_date <> imd1.appl_dt_key_no::VARCHAR(10)::DATE
+END;  --259981
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT (LPAD (legacy.affiliate_code,'3','0'),legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (legacy.affiliate_code) = '' THEN 0 ELSE legacy.affiliate_code::SMALLINT END
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD (legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  LEFT JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND imd1.imc_aff_id IS NULL
+AND gam.application_entry_date = legacy.signed_contract_date::DATE;  --704800
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT (LPAD (legacy.affiliate_code,'3','0'),legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (legacy.affiliate_code) = '' THEN 0 ELSE legacy.affiliate_code::SMALLINT END
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD (legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND legacy.signed_contract_date IS NULL
+AND gam.application_entry_date = '19000101'::DATE;  --126770
+
+SELECT 88701190 + 259981 + 704800 + 126770;  --89792741
+
+--ATLAS
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+  JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND 
+CASE
+WHEN imd1.curr_appl_dt_key_no - imd1.appl_dt_key_no > 365 THEN gam.application_entry_date = imd1.curr_appl_dt_key_no::VARCHAR(10)::DATE
+ELSE
+gam.application_entry_date = imd1.appl_dt_key_no::VARCHAR(10)::DATE
+END;  --1064855
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+  JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND 
+CASE
+WHEN imd1.curr_appl_dt_key_no - imd1.appl_dt_key_no > 365  
+  THEN gam.application_entry_date <> imd1.curr_appl_dt_key_no::VARCHAR(10)::DATE
+ELSE
+  gam.application_entry_date <> imd1.appl_dt_key_no::VARCHAR(10)::DATE
+END;  --3
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+  LEFT JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND imd1.imc_aff_id IS NULL
+AND atlas.application_date <> ''
+AND gam.application_entry_date = atlas.application_date::VARCHAR(10)::DATE;  --22602
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+  LEFT JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND imd1.imc_aff_id IS NULL
+AND atlas.application_date = ''
+AND gam.application_entry_date = '19000101'::DATE;  --1596
+
+SELECT 1064855 + 3 + 22602 + 1596;  --1089056
+
+--38. current_application_date
+
+--MDMS
+SELECT COUNT(*) 
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT(LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
+WHERE mdms.business_entity_code <> ''
+AND   gam.current_application_date = mdms.entry_date::DATE;  --604481
 
 --LEGACY
 SELECT COUNT(*)
@@ -1871,23 +2327,14 @@ FROM curated_integration.global_account_master gam
   JOIN atomic.wwt01020_aff_mst am_valid_aff
 		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
 	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
-  JOIN public.dwt41036_ddatbat_qa ndt_ddatbat_qa ON ndt_ddatbat_qa.intgrt_ctl_aff = LPAD(legacy.affiliate_code,'3','0') AND ndt_ddatbat_qa.distb_nbr = legacy.abo_no
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   legacy.Business_Entity_Code <> ''
-AND gam.application_entry_date = ndt_ddatbat_qa.db_dt::DATE;  --269935
-
-SELECT COUNT(*)
-FROM curated_integration.global_account_master gam
-  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
-  JOIN atomic.wwt01020_aff_mst am_valid_aff
-		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
-	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
-  LEFT JOIN public.dwt41036_ddatbat_qa ndt_ddatbat_qa ON ndt_ddatbat_qa.intgrt_ctl_aff = LPAD(legacy.affiliate_code,'3','0') AND ndt_ddatbat_qa.distb_nbr = legacy.abo_no
-WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
-AND   legacy.Business_Entity_Code <> ''
-AND ndt_ddatbat_qa.intgrt_ctl_aff IS NULL AND gam.signed_contract_date = '19000101'::DATE; -- 89522807
-
-SELECT 269935 + 89522807; -- 89792742
+AND gam.current_application_date = 
+CASE
+WHEN (legacy.signed_contract_date IS NULL OR TRIM(legacy.signed_contract_date) = '') THEN '19000101'::DATE
+ELSE
+legacy.signed_contract_date::DATE
+END;  --89792742
 
 --ATLAS
 SELECT COUNT(*)
@@ -1903,7 +2350,938 @@ FROM curated_integration.global_account_master gam
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
 AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
-AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.signed_contract_date = atlas.signed_form_received_date::DATE;  --1087477
+AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.current_application_date =  atlas.application_date::DATE;  --1045721
+
+--39. sales_account_type_code
+
+--MDMS
+SELECT COUNT(*) 
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT(LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN atomic_legacy.dwt41150_dist_type_legacy_lkp ndt_dist_type_legacy_lkp
+    ON LPAD( mdms.affiliate_code,3,'0')::SMALLINT = ndt_dist_type_legacy_lkp.aff_no
+    AND mdms.imc_type_code = ndt_dist_type_legacy_lkp.local_imc_type_code
+    AND mdms.business_nature_code = ndt_dist_type_legacy_lkp.local_business_nature_code
+WHERE mdms.business_entity_code <> ''
+AND   gam.sales_account_type_code = ndt_dist_type_legacy_lkp.sales_account_type_code;  --1788141
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT(LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
+  LEFT JOIN atomic_legacy.dwt41150_dist_type_legacy_lkp ndt_dist_type_legacy_lkp
+    ON LPAD( mdms.affiliate_code,3,'0')::SMALLINT = ndt_dist_type_legacy_lkp.aff_no
+    AND mdms.imc_type_code = ndt_dist_type_legacy_lkp.local_imc_type_code
+    AND mdms.business_nature_code = ndt_dist_type_legacy_lkp.local_business_nature_code
+WHERE mdms.business_entity_code <> ''
+AND ndt_dist_type_legacy_lkp.aff_no IS NULL
+AND   gam.sales_account_type_code IS NULL;  --943
+
+SELECT 1788141 + 943;  --1789084
+
+--LEGACY
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN atomic_legacy.dwt41150_dist_type_legacy_lkp ndt_dist_type_legacy_lkp
+    ON LPAD( legacy.affiliate_code,3,'0')::SMALLINT = ndt_dist_type_legacy_lkp.aff_no
+    AND legacy.imc_type_code = ndt_dist_type_legacy_lkp.local_imc_type_code
+    AND legacy.business_nature_code = ndt_dist_type_legacy_lkp.local_business_nature_code
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND gam.sales_account_type_code = ndt_dist_type_legacy_lkp.sales_account_type_code;  --89664074
+
+--ATLAS
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+  JOIN atomic_legacy.dwt43075_atlas_imc_type ndt_atlas_imc_type ON atlas.imc_type = ndt_atlas_imc_type.imc_type
+  JOIN atomic_legacy.dwt41150_dist_type_legacy_lkp ndt_dist_type_legacy_lkp
+  ON '' = ndt_dist_type_legacy_lkp.local_business_nature_code
+      AND ndt_atlas_imc_type.imc_type_code = ndt_dist_type_legacy_lkp.local_imc_type_code
+      AND NVL(atlas.intgrt_aff_cd,atlas.sales_plan_affiliate)::SMALLINT = ndt_dist_type_legacy_lkp.aff_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND gam.sales_account_type_code =  ndt_dist_type_legacy_lkp.sales_account_type_code;  --593582
+
+--40. sales_account_type_desc
+
+--MDMS
+SELECT COUNT(*) 
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT(LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN atomic_legacy.dwt41150_dist_type_legacy_lkp ndt_dist_type_legacy_lkp
+    ON LPAD( mdms.affiliate_code,3,'0')::SMALLINT = ndt_dist_type_legacy_lkp.aff_no
+    AND mdms.imc_type_code = ndt_dist_type_legacy_lkp.local_imc_type_code
+    AND mdms.business_nature_code = ndt_dist_type_legacy_lkp.local_business_nature_code
+  JOIN atomic.wwt01001_imc_type_mst imc_sales ON ndt_dist_type_legacy_lkp.sales_account_type_code = imc_sales.IMC_Typ_Cd
+WHERE mdms.business_entity_code <> ''
+AND   gam.sales_account_type_desc = imc_sales.imc_desc;  --1788255
+
+SELECT COUNT(*) 
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT(LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
+  LEFT JOIN atomic_legacy.dwt41150_dist_type_legacy_lkp ndt_dist_type_legacy_lkp
+    ON LPAD( mdms.affiliate_code,3,'0')::SMALLINT = ndt_dist_type_legacy_lkp.aff_no
+    AND mdms.imc_type_code = ndt_dist_type_legacy_lkp.local_imc_type_code
+    AND mdms.business_nature_code = ndt_dist_type_legacy_lkp.local_business_nature_code
+  LEFT JOIN atomic.wwt01001_imc_type_mst imc_sales ON ndt_dist_type_legacy_lkp.sales_account_type_code = imc_sales.IMC_Typ_Cd
+WHERE mdms.business_entity_code <> ''
+AND   imc_sales.IMC_Typ_Cd IS NULL
+AND   ndt_dist_type_legacy_lkp.aff_no IS NULL
+AND   gam.sales_account_type_desc IS NULL;  --943
+
+SELECT 1788255 + 943;  --1789198
+
+--LEGACY
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN atomic_legacy.dwt41150_dist_type_legacy_lkp ndt_dist_type_legacy_lkp
+    ON LPAD( legacy.affiliate_code,3,'0')::SMALLINT = ndt_dist_type_legacy_lkp.aff_no
+    AND legacy.imc_type_code = ndt_dist_type_legacy_lkp.local_imc_type_code
+    AND legacy.business_nature_code = ndt_dist_type_legacy_lkp.local_business_nature_code
+  JOIN atomic.wwt01001_imc_type_mst imc_sales ON ndt_dist_type_legacy_lkp.sales_account_type_code = imc_sales.IMC_Typ_Cd
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND   gam.sales_account_type_desc = imc_sales.imc_desc;  --89667906
+
+--ATLAS
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+  JOIN atomic_legacy.dwt43075_atlas_imc_type ndt_atlas_imc_type ON atlas.imc_type = ndt_atlas_imc_type.imc_type
+  JOIN atomic_legacy.dwt41150_dist_type_legacy_lkp ndt_dist_type_legacy_lkp
+  ON '' = ndt_dist_type_legacy_lkp.local_business_nature_code
+      AND ndt_atlas_imc_type.imc_type_code = ndt_dist_type_legacy_lkp.local_imc_type_code
+      AND NVL(atlas.intgrt_aff_cd,atlas.sales_plan_affiliate)::SMALLINT = ndt_dist_type_legacy_lkp.aff_no
+  JOIN atomic.wwt01001_imc_type_mst imc_sales ON ndt_dist_type_legacy_lkp.sales_account_type_code = imc_sales.IMC_Typ_Cd
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND   gam.sales_account_type_desc = imc_sales.imc_desc;  --593582
+
+--41. local_account_type_code
+
+--MDMS
+SELECT COUNT(*) 
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT(LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
+WHERE mdms.business_entity_code <> ''
+AND   gam.local_account_type_code = 'NA';  --1789198
+
+--LEGACY
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND   gam.local_account_type_code = CONCAT( legacy.bns_cpbl, legacy.business_nature_code);  --89649537
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND   (legacy.bns_cpbl IS NULL OR TRIM(legacy.bns_cpbl) = '')
+AND   (legacy.business_nature_code IS NULL OR TRIM(legacy.business_nature_code) = '')
+AND   gam.local_account_type_code = 'NA';  --18370
+
+SELECT 89649537 + 18370;  --89667907
+
+--ATLAS
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND   gam.local_account_type_code = 'NA';  --593582
+
+--42. local_account_type_desc
+
+--MDMS
+SELECT COUNT(*) 
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT(LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
+WHERE mdms.business_entity_code <> ''
+AND   gam.local_account_type_desc = 'NOT APPLICABLE';  --1789198
+
+--LEGACY
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+	JOIN atomic_legacy.dwt41067_local_imc_type lcl_imc_type
+    ON lpad(lcl_imc_type.aff_id, 3, '0') = lpad(legacy.Affiliate_Code, 3, '0')
+    AND lcl_imc_type.local_imc_type_cd = CONCAT( legacy.bns_cpbl, legacy.business_nature_code)
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND   gam.local_account_type_desc = lcl_imc_type.local_imc_type_desc;  --23037506
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+	LEFT JOIN atomic_legacy.dwt41067_local_imc_type lcl_imc_type
+    ON lpad(lcl_imc_type.aff_id, 3, '0') = lpad(legacy.Affiliate_Code, 3, '0')
+    AND lcl_imc_type.local_imc_type_cd = CONCAT( legacy.bns_cpbl, legacy.business_nature_code)
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND   lcl_imc_type.aff_id IS NULL
+AND   gam.local_account_type_desc = 'NOT APPLICABLE';  --66635928
+
+SELECT 89649537 + 18370;  --89667907
+
+--ATLAS
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND   gam.local_account_type_desc = 'NOT APPLICABLE';  --593646
+
+--43. original_imc_type_code
+
+--MDMS
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE mdms.business_entity_code <> ''
+AND   (imd1.original_imc_type_cd IS NOT NULL AND TRIM(imd1.original_imc_type_cd) != '' AND TRIM(imd1.original_imc_type_cd) != '*')
+AND   gam.original_imc_type_code = imd1.original_imc_type_cd;  --394956
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE mdms.business_entity_code <> ''
+AND   (imd1.original_imc_type_cd IS NOT NULL AND TRIM(imd1.original_imc_type_cd) != '' AND TRIM(imd1.original_imc_type_cd) != '*')
+AND   gam.original_imc_type_code <> imd1.original_imc_type_cd;  --6524
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE mdms.business_entity_code <> ''
+AND   (imd1.original_imc_type_cd IS NULL OR TRIM(imd1.original_imc_type_cd) = '' OR TRIM(imd1.original_imc_type_cd) = '*')
+AND   gam.original_imc_type_code = mdms.imc_type_code;  --78454
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  LEFT JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE mdms.business_entity_code <> ''
+AND   imd1.imc_aff_id IS NULL
+AND   gam.original_imc_type_code = mdms.imc_type_code;  --124549
+
+SELECT 394956 + 6524 + 124549 + 78454;  --526029
+
+--LEGACY
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT (LPAD (legacy.affiliate_code,'3','0'),legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (legacy.affiliate_code) = '' THEN 0 ELSE legacy.affiliate_code::SMALLINT END
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD (legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND   (imd1.original_imc_type_cd IS NOT NULL AND TRIM(imd1.original_imc_type_cd) != '' AND TRIM(imd1.original_imc_type_cd) != '*')
+AND   gam.original_imc_type_code = imd1.original_imc_type_cd; -- 73517233
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT (LPAD (legacy.affiliate_code,'3','0'),legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (legacy.affiliate_code) = '' THEN 0 ELSE legacy.affiliate_code::SMALLINT END
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD (legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND   (imd1.original_imc_type_cd IS NOT NULL AND TRIM(imd1.original_imc_type_cd) != '' AND TRIM(imd1.original_imc_type_cd) != '*')
+AND   gam.original_imc_type_code <> imd1.original_imc_type_cd; -- 0
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT (LPAD (legacy.affiliate_code,'3','0'),legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (legacy.affiliate_code) = '' THEN 0 ELSE legacy.affiliate_code::SMALLINT END
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD (legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND   (imd1.original_imc_type_cd IS NULL OR TRIM(imd1.original_imc_type_cd) = '' OR TRIM(imd1.original_imc_type_cd) = '*')
+AND   gam.original_imc_type_code = legacy.imc_type_code; -- 4553264
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT (LPAD (legacy.affiliate_code,'3','0'),legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (legacy.affiliate_code) = '' THEN 0 ELSE legacy.affiliate_code::SMALLINT END
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD (legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND   (imd1.original_imc_type_cd IS NULL OR TRIM(imd1.original_imc_type_cd) = '' OR TRIM(imd1.original_imc_type_cd) = '*')
+AND   gam.original_imc_type_code <> legacy.imc_type_code; -- 10890674
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT (LPAD (legacy.affiliate_code,'3','0'),legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (legacy.affiliate_code) = '' THEN 0 ELSE legacy.affiliate_code::SMALLINT END
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD (legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  LEFT JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND   imd1.imc_aff_id IS NULL
+AND   gam.original_imc_type_code = legacy.imc_type_code; -- 551096
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT (LPAD (legacy.affiliate_code,'3','0'),legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (legacy.affiliate_code) = '' THEN 0 ELSE legacy.affiliate_code::SMALLINT END
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD (legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  LEFT JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND   imd1.imc_aff_id IS NULL
+AND   gam.original_imc_type_code <> legacy.imc_type_code; -- 280474
+
+SELECT 73517233 + 4553264 + 10890674 + 551096 + 280474;  --89792741
+
+--ATLAS
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+  JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND   (imd1.original_imc_type_cd IS NOT NULL AND TRIM(imd1.original_imc_type_cd) != '' AND TRIM(imd1.original_imc_type_cd) != '*')
+AND   gam.original_imc_type_code = imd1.original_imc_type_cd; -- 127222
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+  JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND   (imd1.original_imc_type_cd IS NOT NULL AND TRIM(imd1.original_imc_type_cd) != '' AND TRIM(imd1.original_imc_type_cd) != '*')
+AND   gam.original_imc_type_code <> imd1.original_imc_type_cd; -- 821334
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+  JOIN atomic_legacy.dwt43075_atlas_imc_type ndt_atlas_imc_type ON atlas.imc_type = ndt_atlas_imc_type.imc_type
+  JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND   (imd1.original_imc_type_cd IS NULL OR TRIM(imd1.original_imc_type_cd) = '' OR TRIM(imd1.original_imc_type_cd) = '*')
+AND   gam.original_imc_type_code = ndt_atlas_imc_type.imc_type_code; -- 116302
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+  JOIN atomic_legacy.dwt43075_atlas_imc_type ndt_atlas_imc_type ON atlas.imc_type = ndt_atlas_imc_type.imc_type
+  LEFT JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND   imd1.imc_aff_id IS NULL
+AND   gam.original_imc_type_code = ndt_atlas_imc_type.imc_type_code; -- 24198
+
+SELECT 127222 + 821334 + 116302 + 24198;  --1089056
+
+--44. original_imc_type_desc
+
+--MDMS
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN atomic.wwt01001_imc_type_mst ndt_imc_type_mst ON mdms.imc_type_code = ndt_imc_type_mst.imc_typ_cd
+WHERE mdms.business_entity_code <> '' AND gam.original_imc_type_desc = ndt_imc_type_mst.imc_desc;  --127067
+
+SELECT count(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN atomic.wwt01001_imc_type_mst ndt_imc_type_mst ON mdms.imc_type_code = ndt_imc_type_mst.imc_typ_cd
+WHERE mdms.business_entity_code <> '' AND gam.original_imc_type_desc <> ndt_imc_type_mst.imc_desc limit 100;  --477416
+
+select 477416 + 127067;   --604483
+
+--LEGACY
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+	JOIN atomic_legacy.dwt41047_ddsttyp ndt_ddsttyp ON legacy.imc_type_code = ndt_ddsttyp.dist_type AND legacy.business_entity_code = ndt_ddsttyp.intgrt_cntry_cd
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> '' AND gam.original_imc_type_desc = ndt_ddsttyp.dist_type_desc; -- 71710621
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+	JOIN atomic_legacy.dwt41047_ddsttyp ndt_ddsttyp ON legacy.imc_type_code = ndt_ddsttyp.dist_type AND legacy.business_entity_code = ndt_ddsttyp.intgrt_cntry_cd
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> '' AND gam.original_imc_type_desc <> ndt_ddsttyp.dist_type_desc; -- 5427897
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+	LEFT JOIN atomic_legacy.dwt41047_ddsttyp ndt_ddsttyp ON legacy.imc_type_code = ndt_ddsttyp.dist_type AND legacy.business_entity_code = ndt_ddsttyp.intgrt_cntry_cd
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> '' 
+AND   ndt_ddsttyp.dist_type IS NULL
+AND   gam.original_imc_type_desc = 'unknown';  --12654223
+
+SELECT 71710621 + 5427897 + 12654223;  --89792741
+
+--ATLAS
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND   gam.original_imc_type_desc = atlas.imc_type;  --24198
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND   gam.original_imc_type_desc <> atlas.imc_type;  --1064858
+
+SELECT 24198 + 1064858; --1089056
+
+--45. original_business_nature_code
+
+--MDMS
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+    AND gam.abo_number = imd1.imc_no
+WHERE mdms.business_entity_code <> ''
+AND (imd1.original_bus_natr_cd IS NOT NULL AND TRIM(imd1.original_bus_natr_cd) != '' AND TRIM(imd1.original_bus_natr_cd) != '*')
+AND gam.original_business_nature_code = imd1.original_bus_natr_cd;  --416708
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+    AND gam.abo_number = imd1.imc_no
+WHERE mdms.business_entity_code <> ''
+AND (imd1.original_bus_natr_cd IS NOT NULL AND TRIM(imd1.original_bus_natr_cd) != '' AND TRIM(imd1.original_bus_natr_cd) != '*')
+AND gam.original_business_nature_code <> imd1.original_bus_natr_cd;  --0
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN public.imc_dim_qa imd1
+  ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+  AND gam.abo_number = imd1.imc_no
+WHERE mdms.business_entity_code <> ''
+AND (imd1.original_bus_natr_cd IS NULL OR TRIM(imd1.original_bus_natr_cd) = '' OR TRIM(imd1.original_bus_natr_cd) = '*')
+AND gam.original_business_nature_code = mdms.business_nature_code;  --63226
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
+  LEFT JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+    AND gam.abo_number = imd1.imc_no
+WHERE mdms.business_entity_code <> ''
+AND imd1.imc_aff_id IS NULL
+AND gam.original_business_nature_code = mdms.business_nature_code;  --124549
+
+SELECT 416708 + 63226 + 124549;  --604483
+
+--LEGACY
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+	JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND (imd1.original_bus_natr_cd IS NOT NULL AND TRIM(imd1.original_bus_natr_cd) != '' AND TRIM(imd1.original_bus_natr_cd) != '*')
+AND gam.original_business_nature_code = imd1.original_bus_natr_cd; -- 76830128
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+	JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND (imd1.original_bus_natr_cd IS NULL OR TRIM(imd1.original_bus_natr_cd) = '' OR TRIM(imd1.original_bus_natr_cd) = '*')
+AND gam.original_business_nature_code = legacy.business_nature_code -- 1740712
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+	JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND (imd1.original_bus_natr_cd IS NULL OR TRIM(imd1.original_bus_natr_cd) = '' OR TRIM(imd1.original_bus_natr_cd) = '*')
+AND gam.original_business_nature_code <> legacy.business_nature_code -- 10390331
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+	LEFT JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND imd1.imc_aff_id IS NULL
+AND gam.original_business_nature_code <> legacy.business_nature_code; -- 731081
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+	LEFT JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND imd1.imc_aff_id IS NULL
+AND gam.original_business_nature_code <> legacy.business_nature_code; -- 100489
+
+SELECT 76830128 + 1740712 + 10390331 + 731081 + 100489;  --89792741
+
+--ATLAS
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+  JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND (imd1.original_bus_natr_cd IS NULL OR imd1.original_bus_natr_cd = '' OR imd1.original_bus_natr_cd = '*' OR imd1.original_bus_natr_cd = 'UNKNOWN')
+AND   gam.original_business_nature_code = '*'  --1064858
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+  LEFT JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND imd1.imc_aff_id IS NULL
+AND   gam.original_business_nature_code = '*'  --24198
+
+SELECT 1064858 + 24198;  --1089056
+
+--46. original_business_nature_name
+
+--MDMS
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN atomic.wwt06004_bus_natr_mst ndt_bus_natr_mst
+    ON ndt_bus_natr_mst.Cntry_Cd::SMALLINT = CASE WHEN trim (mdms.Business_Entity_Code) = '' THEN 0 ELSE mdms.Business_Entity_Code::SMALLINT END
+   AND mdms.Business_Nature_Code = ndt_bus_natr_mst.Bus_Natr_Cd
+WHERE mdms.business_entity_code <> ''
+AND   gam.original_business_nature_name = ndt_bus_natr_mst.bus_natr_nm;  --124546
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN atomic.wwt06004_bus_natr_mst ndt_bus_natr_mst
+    ON ndt_bus_natr_mst.Cntry_Cd::SMALLINT = CASE WHEN trim (mdms.Business_Entity_Code) = '' THEN 0 ELSE mdms.Business_Entity_Code::SMALLINT END
+   AND mdms.Business_Nature_Code = ndt_bus_natr_mst.Bus_Natr_Cd
+WHERE mdms.business_entity_code <> ''
+AND   gam.original_business_nature_name <> ndt_bus_natr_mst.bus_natr_nm;  --479934
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
+  LEFT JOIN atomic.wwt06004_bus_natr_mst ndt_bus_natr_mst
+    ON ndt_bus_natr_mst.Cntry_Cd::SMALLINT = CASE WHEN trim (mdms.Business_Entity_Code) = '' THEN 0 ELSE mdms.Business_Entity_Code::SMALLINT END
+   AND mdms.Business_Nature_Code = ndt_bus_natr_mst.Bus_Natr_Cd
+WHERE mdms.business_entity_code <> ''
+AND   ndt_bus_natr_mst.cntry_cd IS NULL
+AND   gam.original_business_nature_name = 'UNKNOWN';  --3
+
+select 124546 + 479934 + 3;  --604483
+
+--LEGACY
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+	JOIN atomic_legacy.dwt41046_dbusnat ndt_dbusnat ON legacy.business_nature_code = ndt_dbusnat.bus_nat_cd AND legacy.business_entity_code = ndt_dbusnat.intgrt_cntry_cd
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> '' AND ndt_dbusnat.bus_nat_cd IS NOT NULL AND TRIM(ndt_dbusnat.bus_nat_desc) <> ''
+ AND gam.original_business_nature_name = ndt_dbusnat.bus_nat_desc; -- 72387654
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+	JOIN atomic_legacy.dwt41046_dbusnat ndt_dbusnat ON legacy.business_nature_code = ndt_dbusnat.bus_nat_cd AND legacy.business_entity_code = ndt_dbusnat.intgrt_cntry_cd
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> '' AND ndt_dbusnat.bus_nat_cd IS NOT NULL AND TRIM(ndt_dbusnat.bus_nat_desc) <> ''
+AND gam.original_business_nature_name <> ndt_dbusnat.bus_nat_desc;  -- 6547509
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+	LEFT JOIN atomic_legacy.dwt41046_dbusnat ndt_dbusnat ON legacy.business_nature_code = ndt_dbusnat.bus_nat_cd AND legacy.business_entity_code = ndt_dbusnat.intgrt_cntry_cd
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND   ndt_dbusnat.bus_nat_cd IS NULL
+AND gam.original_business_nature_name = 'UNKNOWN';  -- 10490600
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+	LEFT JOIN atomic_legacy.dwt41046_dbusnat ndt_dbusnat ON legacy.business_nature_code = ndt_dbusnat.bus_nat_cd AND legacy.business_entity_code = ndt_dbusnat.intgrt_cntry_cd
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   legacy.Business_Entity_Code <> ''
+AND   ndt_dbusnat.bus_nat_cd IS NULL
+AND gam.original_business_nature_name <> 'UNKNOWN';  --366978
+
+SELECT 72387654 + 6547509 + 10490600 + 366978;  -- 89792741
+
+--ATLAS
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+  JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND (imd1.original_bus_natr_cd IS NULL OR imd1.original_bus_natr_cd = '' OR imd1.original_bus_natr_cd = '*' OR imd1.original_bus_natr_cd = 'UNKNOWN')
+AND   gam.original_business_nature_name = 'UNKNOWN';  --1064858
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+  LEFT JOIN public.imc_dim_qa imd1
+    ON imd1.imc_aff_id = CASE WHEN TRIM (gam.Affiliate_Code) = '' THEN 0 ELSE gam.Affiliate_Code::SMALLINT END
+   AND gam.abo_number = imd1.imc_no
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND imd1.imc_aff_id IS NULL
+AND   gam.original_business_nature_name = 'UNKNOWN';  --24198
+
+SELECT 1064858 + 24198;  --1089056
+
+--47. original_application_date
+
+--MDMS
+SELECT COUNT(*) 
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT(LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
+WHERE mdms.business_entity_code <> ''
+AND   gam.original_application_date = mdms.entry_date::DATE;  --1647351
+
+SELECT COUNT(*) 
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT(LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
+WHERE mdms.business_entity_code <> ''
+AND   gam.original_application_date <> mdms.entry_date::DATE;  --139212
+
+SELECT 1647351 + 139212;
+
+--LEGACY
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+WHERE (CONCAT(mdms.affiliate_code,mdms.abo_no) IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND legacy.Business_Entity_Code <> '' AND gam.original_application_date = 
+CASE
+WHEN legacy.signed_contract_date IS NULL THEN '19000101'::DATE
+ELSE
+legacy.signed_contract_date::DATE
+END;  --76373445
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
+  JOIN atomic.wwt01020_aff_mst am_valid_aff
+		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
+	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND legacy.Business_Entity_Code <> ''
+AND gam.original_application_date <> 
+CASE
+WHEN legacy.signed_contract_date IS NULL THEN '19000101'::DATE
+ELSE
+legacy.signed_contract_date::DATE
+END; --12441858
+
+SELECT 76373445 + 12441858;  --88815303
+
+--ATLAS
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND gam.original_application_date = atlas.application_date::DATE;
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
+  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
+  LEFT JOIN (SELECT distb.affiliate_code,
+                    distb.business_entity_code,
+                    distb.abo_no
+             FROM atomic_legacy.dwt41042_distb_dtl distb
+               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
+  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
+WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
+AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
+AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
+AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.original_application_date <> atlas.application_date::DATE;
+
+select 931296 + 174436; -- 1105732
+
+--48, 49. original_sponsor_global_account_wid, original_sponsor_abo_number
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam  --92058121
+  JOIN surrogate.sg_global_account_master sg
+    ON gam.affiliate_code = sg.affiliate_code
+   AND gam.original_sponsor_abo_number = sg.abo_number  --92057706
+	WHERE gam.original_sponsor_global_account_wid = sg.global_account_wid;  --92057706
+	
+--50. original_sales_account_type_code
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 --16. original_application_date  -----------------------------------------------------------------TODO
 
@@ -1987,48 +3365,6 @@ AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
 AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.original_application_date <> atlas.application_date::DATE;
 
 SELECT 931296 + 174436; -- 1105732
-
-
---17. current_application_date
-
---MDMS
-SELECT COUNT(*) 
-FROM curated_integration.global_account_master gam
-  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT(LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
-WHERE mdms.business_entity_code <> ''
-AND   gam.current_application_date = mdms.entry_date::DATE;  --604481
-
---LEGACY
-SELECT COUNT(*)
-FROM curated_integration.global_account_master gam
-  JOIN atomic_legacy.dwt41042_distb_dtl legacy ON gam.global_account_id = CONCAT( LPAD(legacy.affiliate_code,'3','0'), legacy.abo_no)
-  JOIN atomic.wwt01020_aff_mst am_valid_aff
-		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
-	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
-WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
-AND   legacy.Business_Entity_Code <> ''
-AND gam.current_application_date = 
-CASE
-WHEN legacy.signed_contract_date IS NULL THEN '19000101'::DATE
-ELSE
-legacy.signed_contract_date::DATE
-END;  --89792742
-
---ATLAS
-SELECT COUNT(*)
-FROM curated_integration.global_account_master gam
-  JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
-  JOIN PUBLIC.temp_dwt12011_qa tmp ON atlas.home_country = tmp.iso_cntry_cd
-  LEFT JOIN (SELECT distb.affiliate_code,
-                    distb.business_entity_code,
-                    distb.abo_no
-             FROM atomic_legacy.dwt41042_distb_dtl distb
-               JOIN atomic.wwt01020_aff_mst am_valid_aff ON am_valid_aff.aff_id = CASE WHEN TRIM (distb.affiliate_code) = '' THEN 0 ELSE distb.affiliate_code::SMALLINT END) legacy ON atlas.imc_number = CONCAT (LPAD (legacy.affiliate_code,3,'0'),legacy.abo_no)
-  LEFT JOIN atomic.dwt41141_account_dtl mdms ON atlas.imc_number = CONCAT (LPAD (mdms.affiliate_code,3,'0'),mdms.abo_no)
-WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
-AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
-AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
-AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.current_application_date =  atlas.application_date::DATE;  --
 
 
 
@@ -2115,7 +3451,7 @@ FROM curated_integration.global_account_master gam
     ON mdms.abo_no = ndt.abo_no
    AND LPAD(mdms.affiliate_code,'3','0') = LPAD(ndt.aff,'3','0')
    AND ndt.publication_id = '50' AND ndt.subscription_level = 'Account'
-WHERE mdms.business_entity_code <> '' AND gam.is_auto_renewal_subscribed IS TRUE;  -- 49695
+WHERE mdms.business_entity_code <> '' AND gam.is_auto_renewal_subscribed IS TRUE;  -- 263501
 
 SELECT COUNT(*)
 FROM curated_integration.global_account_master gam
@@ -2124,9 +3460,9 @@ FROM curated_integration.global_account_master gam
     ON mdms.abo_no = ndt.abo_no
    AND LPAD(mdms.affiliate_code,'3','0') = LPAD(ndt.aff,'3','0')
    AND ndt.publication_id = '50' AND ndt.subscription_level = 'Account'
-WHERE ndt.abo_no IS NULL AND mdms.business_entity_code <> '' AND gam.is_auto_renewal_subscribed IS FALSE;  -- 1605556   1605558
+WHERE ndt.abo_no IS NULL AND mdms.business_entity_code <> '' AND gam.is_auto_renewal_subscribed IS FALSE;  --8596068
 
-SELECT 49695 + 1605558;  --1655253
+SELECT 263501 + 8596068;  --8859569
 
 --LEGACY
 SELECT COUNT(*)
@@ -2136,7 +3472,7 @@ FROM curated_integration.global_account_master gam
 		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
 	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
 WHERE (CONCAT(mdms.affiliate_code,mdms.abo_no) IS NULL OR mdms.business_entity_code = '')
-AND   legacy.Business_Entity_Code <> '' AND legacy.auto_renew = 'Y' AND gam.is_auto_renewal_subscribed IS TRUE; -- 2069011
+AND   legacy.Business_Entity_Code <> '' AND legacy.auto_renew = 'Y' AND gam.is_auto_renewal_subscribed IS TRUE; -- 1900819
 
 SELECT COUNT(*)
 FROM curated_integration.global_account_master gam
@@ -2145,9 +3481,9 @@ FROM curated_integration.global_account_master gam
 		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
 	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
 WHERE (CONCAT(mdms.affiliate_code,mdms.abo_no) IS NULL OR mdms.business_entity_code = '')
-AND   legacy.Business_Entity_Code <> '' AND legacy.auto_renew <> 'Y' AND gam.is_auto_renewal_subscribed IS FALSE; -- 86745032
+AND   legacy.Business_Entity_Code <> '' AND legacy.auto_renew <> 'Y' AND gam.is_auto_renewal_subscribed IS FALSE; -- 80217926
 
-SELECT 2069011 + 86745032; -- 88814043
+SELECT 1900819 + 80217926; -- 82118745
 
 --ATLAS
 SELECT COUNT(*)
@@ -2178,10 +3514,11 @@ FROM curated_integration.global_account_master gam
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
 AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
-AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.is_auto_renewal_subscribed IS FALSE;  --1105732
+AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.is_auto_renewal_subscribed IS FALSE;  --1109081
+
 
 --TOTAL COUNT
-SELECT 1783355 + 88814043 + 1105732;  --91703130
+SELECT 8859569 + 82118745 + 1109081;  --91703130
 
 
 
