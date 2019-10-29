@@ -52,18 +52,14 @@ FROM PUBLIC.dwt41036_ddatbat_qa;  --669747
 
 --CREATE TABLE FOR dwt41036_ddatbat_renewal
 DROP TABLE IF EXISTS public.dwt41036_ddatbat_renewal_qa;
-
-
 CREATE TABLE public.dwt41036_ddatbat_renewal_qa
 SORTKEY(intgrt_ctl_aff,distb_nbr)
 AS
 SELECT MAX(db_dt)::VARCHAR(8)::DATE AS db_dt, LPAD(intgrt_ctl_aff,'3','0') AS intgrt_ctl_aff, distb_nbr
 FROM atomic_legacy.dwt41036_ddatbat
 WHERE AUDIT_TYPE_CD IN ('R','G','H','RQ')
+AND db_dt >= 20100101
 GROUP BY 2,3;
-
-ANALYZE public.dwt41036_ddatbat_renewal_qa;
-SELECT COUNT(*) FROM public.dwt41036_ddatbat_renewal_qa; -- 39206228
 
 ------------------******************--------------------
 
@@ -75,9 +71,32 @@ SORTKEY(intgrt_aff_cd,imc_no)
 AS
 SELECT MAX(ord_dt)::DATE AS ord_dt, LPAD(intgrt_aff_cd,'3','0') AS intgrt_aff_cd, imc_no
 FROM atomic_legacy.dwt41064_imc_service_contracts
-WHERE ln_type ='SERVICE' AND inventory_item_id IN(1029,1030,1031,1035,1036,1037,1041,1042,1043,1052,1053,1056,1058,1059,1062,1063,1064,1065)
-     AND sts_cd IN('ACTIVE','SIGNED')
+WHERE ln_type ='SERVICE'
+  AND inventory_item_id IN(1029,1030,1031,1035,1036,1037,1041,1042,1043,1052,1053,1056,1058,1059,1062,1063,1064,1065)
+  AND sts_cd IN('ACTIVE','SIGNED')
+  AND ord_dt >= 20100101
 GROUP BY 2,3;
+
+------------------********************-------------------
+
+DROP TABLE IF EXISTS public.imc_dim_qa;
+CREATE TABLE public.imc_dim_qa
+AS
+(SELECT * from atomic_legacy.dwt01021_imc_master_dim imc where imc.appl_dt_key_no <> '19000101')
+
+------------------********************-------------------
+
+DROP TABLE IF EXISTS public.qa_dwt40000_acct_hist_mdms;
+CREATE TABLE public.qa_dwt40000_acct_hist_mdms
+AS
+(
+  SELECT  acct_hist_mdms.aff_no AS aff_no,
+          acct_hist_mdms.ibo_no AS ibo_no,
+          MAX(acct_hist_mdms.proc_dt) AS proc_dt
+  FROM atomic.dwt40000_acct_hist_mdms acct_hist_mdms
+  WHERE acct_hist_mdms.proc_cd IN ('RN','RX')
+  GROUP BY 1,2
+);
 
 --------------------------------------------1. CHECK COUNTS---------------------------------------------------------------------
 
@@ -137,7 +156,7 @@ FROM curated_integration.global_account_master gam
 		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.affiliate_code) = '' THEN 0	ELSE legacy.affiliate_code::SMALLINT END
 	LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT ( LPAD( legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
 WHERE (mdms.affiliate_code IS NULL OR mdms.business_entity_code = '')
-AND   TRIM(legacy.Business_Entity_Code) <> '';  --82124129
+AND   TRIM(legacy.Business_Entity_Code) <> '';  --90338536
 
 --ATLAS
 SELECT COUNT(*)
@@ -3763,12 +3782,27 @@ FROM curated_integration.global_account_master gam  --92058121
 
 --56. last_renewal_date
 
---MDMS
+--MDMS    625322
 SELECT COUNT(*)
 FROM curated_integration.global_account_master gam
   JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
+  JOIN public.qa_dwt40000_acct_hist_mdms ndt_acct_hist_mdms
+    ON LPAD(mdms.affiliate_code,3,'0') = LPAD( ndt_acct_hist_mdms.aff_no,3,'0')
+    AND mdms.abo_no = ndt_acct_hist_mdms.ibo_no
 WHERE mdms.business_entity_code <> ''
-AND gam.last_renewal_date = '19000101'::DATE;  -- 1793680
+AND gam.last_renewal_date = ndt_acct_hist_mdms.proc_dt::DATE;  -- 83760
+
+SELECT COUNT(*)
+FROM curated_integration.global_account_master gam
+  JOIN atomic.dwt41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
+  LEFT JOIN public.qa_dwt40000_acct_hist_mdms ndt_acct_hist_mdms
+    ON LPAD(mdms.affiliate_code,3,'0') = LPAD( ndt_acct_hist_mdms.aff_no,3,'0')
+    AND mdms.abo_no = ndt_acct_hist_mdms.ibo_no
+WHERE mdms.business_entity_code <> ''
+AND ndt_acct_hist_mdms.aff_no IS NULL
+AND gam.last_renewal_date = '19000101'::DATE;  -- 541562
+
+SELECT 83760 + 541562; --625322
 
 --LEGACY
 SELECT COUNT(*)
@@ -3779,7 +3813,8 @@ FROM curated_integration.global_account_master gam
 	JOIN public.dwt41036_ddatbat_renewal_qa bat ON bat.intgrt_ctl_aff = LPAD(legacy.affiliate_code,'3','0') AND bat.distb_nbr = legacy.abo_no
   LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
 WHERE (CONCAT(mdms.affiliate_code,mdms.abo_no) IS NULL OR TRIM(mdms.business_entity_code) = '')
-AND legacy.Business_Entity_Code <> '' AND gam.last_renewal_date = bat.db_dt::DATE;  --1237811
+AND legacy.Business_Entity_Code <> ''  --29707708
+AND gam.last_renewal_date = bat.db_dt::DATE;  --29707708
 
 SELECT COUNT(*)
 FROM curated_integration.global_account_master gam
@@ -3789,11 +3824,13 @@ FROM curated_integration.global_account_master gam
 	LEFT JOIN public.dwt41036_ddatbat_renewal_qa bat ON bat.intgrt_ctl_aff = LPAD(legacy.affiliate_code,'3','0') AND bat.distb_nbr = legacy.abo_no
   LEFT JOIN atomic.dwt41141_account_dtl mdms ON CONCAT (LPAD(legacy.affiliate_code,'3','0'),legacy.abo_no) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
 WHERE (CONCAT(mdms.affiliate_code,mdms.abo_no) IS NULL OR TRIM(mdms.business_entity_code) = '')
-AND bat.intgrt_ctl_aff IS NULL AND legacy.Business_Entity_Code <> '' AND gam.last_renewal_date = '1900-01-01'::DATE; --55367775
+AND legacy.Business_Entity_Code <> ''
+AND bat.intgrt_ctl_aff IS NULL
+AND gam.last_renewal_date = '19000101'::DATE; --60630828
 
-SELECT 1237811 + 55367775;  --
+SELECT 29707708 + 60630828;  --90338536
 
---ATLAS
+--ATLAS    1089909
 SELECT COUNT(*)
 FROM curated_integration.global_account_master gam
   JOIN atomic_legacy.dwt40016_imc atlas ON atlas.imc_number = gam.global_account_id
@@ -3808,7 +3845,8 @@ FROM curated_integration.global_account_master gam
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
 AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
-AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.last_renewal_date <> cntrct.ord_dt;  --101223
+AND   TRIM(tmp.amway_cntry_cd) <> ''
+AND gam.last_renewal_date = cntrct.ord_dt;  --113718
 
 SELECT COUNT(*)
 FROM curated_integration.global_account_master gam
@@ -3820,9 +3858,9 @@ FROM curated_integration.global_account_master gam
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   (legacy.affiliate_code IS NULL OR TRIM(legacy.business_entity_code) = '')
 AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
-AND   TRIM(temp.amway_cntry_cd) <> '' AND cntrct.imc_no IS NULL AND gam.last_renewal_date = '1900-01-01'; -- 971705
+AND   TRIM(temp.amway_cntry_cd) <> '' AND cntrct.imc_no IS NULL AND gam.last_renewal_date = '19000101'; -- 976191
 
-SELECT 101223 + 971705;
+SELECT 113718 + 976191;   --1089909
 
 --57. IS_AUTO_RENEWAL_SUBSCRIBED
 
