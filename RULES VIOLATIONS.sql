@@ -4,7 +4,7 @@
 SELECT gam.global_account_id
 FROM curated_integration.global_account_master gam WHERE gam.global_account_id ~ '^[0-9]+$' = 'FALSE';  --91486521
 
----------------------------------------------account_id (SAME WITH ABO_NUMBER)
+---------------------------------------------account_id (SAME ISSUE WITH ABO_NUMBER)
 
 --MUST BE UNIQUE WITHIN A SYSTEM
 SELECT COUNT(*), gam.account_id
