@@ -58,6 +58,11 @@ FROM curated_integration.global_account_master gam
 WHERE gam.account_name <> ''
 AND gam.account_name IS NOT NULL AND (substring(gam.account_name,1,1) = '' OR substring(gam.account_name,LENGTH(gam.account_name),1) = '');
 
+SELECT gam.account_name
+FROM curated_integration.global_account_master gam
+WHERE gam.account_name <> ''
+AND gam.account_name IS NOT NULL AND (substring(gam.account_name,1,1) = '' OR substring(gam.account_name,LENGTH(gam.account_name),1) = '') limit 10;
+
 --MUST NOT BE BLANK (QR)
 SELECT COUNT(*)
 FROM curated_integration.global_account_master gam
@@ -96,10 +101,14 @@ OR gam.account_segment_code IS NULL;  --25498
 
 ---------------------------------------------line_of_affiliation_code
 
---MEST ONLY ALLOW NUMERIC VALUES (QR)
+--MUST ONLY ALLOW NUMERIC VALUES (QR)
 SELECT COUNT(*)
 FROM curated_integration.global_account_master gam
 WHERE TRIM(gam.line_of_affiliation_code) <> '' AND gam.line_of_affiliation_code IS NOT NULL AND gam.line_of_affiliation_code ~ '^[0-9]+$' = 'FALSE';
+
+SELECT gam.line_of_affiliation_code
+FROM curated_integration.global_account_master gam
+WHERE TRIM(gam.line_of_affiliation_code) <> '' AND gam.line_of_affiliation_code IS NOT NULL AND gam.line_of_affiliation_code ~ '^[0-9]+$' = 'FALSE' limit 10;
 
 
 
