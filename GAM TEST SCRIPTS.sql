@@ -687,7 +687,7 @@ FROM curated_integration.global_account_master gam
   JOIN atomic.dwv41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
   JOIN atomic_legacy.dwt12011_aff_cntry_mst ndt_aff_cntry_mst ON LPAD (mdms.business_entity_code,'3','0') = ndt_aff_cntry_mst.amway_cntry_cd
 WHERE mdms.business_entity_code <> ''
-AND   gam.country_name = ndt_aff_cntry_mst.cntry_nm;  --604480
+AND   gam.country_name = ndt_aff_cntry_mst.cntry_nm;  --20090504
 
 --LEGACY
 SELECT COUNT(*)
@@ -696,9 +696,9 @@ FROM curated_integration.global_account_master gam
   JOIN atomic.wwt01020_aff_mst am_valid_aff
 		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.intgrt_ctl_aff) = '' THEN 0	ELSE legacy.intgrt_ctl_aff::SMALLINT END
 	LEFT JOIN atomic.dwv41141_account_dtl mdms ON CONCAT (LPAD(legacy.intgrt_ctl_aff,'3','0'),legacy.distb_nbr) = CONCAT (LPAD(mdms.affiliate_code,'3','0'),mdms.abo_no)
-  JOIN atomic_legacy.dwt12011_aff_cntry_mst ndt_aff_cntry_mst ON LPAD (legacy.distb_cntry,'3','0') = ndt_aff_cntry_mst.amway_cntry_cd
+  JOIN atomic_legacy.dwt12011_aff_cntry_mst ndt_aff_cntry_mst ON legacy.distb_cntry = ndt_aff_cntry_mst.amway_cntry_cd
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
-AND   legacy.distb_cntry <> '' AND gam.country_name =  ndt_aff_cntry_mst.cntry_nm;  --89742352
+AND   legacy.distb_cntry <> '' AND gam.country_name =  ndt_aff_cntry_mst.cntry_nm;  --71942195
 
 --ATLAS
 SELECT COUNT(*)
@@ -715,7 +715,7 @@ FROM curated_integration.global_account_master gam
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   (legacy.intgrt_ctl_aff IS NULL OR TRIM(legacy.distb_cntry) = '')
 AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
-AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.country_name = ndt_aff_cntry_mst.cntry_nm;  --1087477
+AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.country_name = ndt_aff_cntry_mst.cntry_nm;  --1116105
 
 --9. region
 
@@ -731,7 +731,7 @@ FROM curated_integration.global_account_master gam
   JOIN atomic_legacy.dwt12011_aff_cntry_mst ndt_aff_cntry_mst ON LPAD (mdms.business_entity_code,'3','0') = ndt_aff_cntry_mst.amway_cntry_cd
   JOIN atomic_legacy.dwt05023_rgn_dim ndt_rgn_dim ON ndt_aff_cntry_mst.rgn_key_no = ndt_rgn_dim.rgn_key_no
 WHERE mdms.business_entity_code <> ''
-AND   gam.region = ndt_rgn_dim.rgn_desc;  --604480
+AND   gam.region = ndt_rgn_dim.rgn_desc;  --20090504
 
 --LEGACY
 SELECT COUNT(*)
@@ -743,7 +743,7 @@ FROM curated_integration.global_account_master gam
   JOIN atomic_legacy.dwt12011_aff_cntry_mst ndt_aff_cntry_mst ON LPAD (legacy.distb_cntry,'3','0') = ndt_aff_cntry_mst.amway_cntry_cd
   JOIN atomic_legacy.dwt05023_rgn_dim ndt_rgn_dim ON ndt_aff_cntry_mst.rgn_key_no = ndt_rgn_dim.rgn_key_no
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
-AND   legacy.distb_cntry <> '' AND gam.region =  ndt_rgn_dim.rgn_desc;  --89742352
+AND   legacy.distb_cntry <> '' AND gam.region =  ndt_rgn_dim.rgn_desc;  --71942195
 
 --ATLAS
 SELECT COUNT(*)
@@ -761,7 +761,7 @@ FROM curated_integration.global_account_master gam
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   (legacy.intgrt_ctl_aff IS NULL OR TRIM(legacy.distb_cntry) = '')
 AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
-AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.region = ndt_rgn_dim.rgn_desc;  --1087477
+AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.region = ndt_rgn_dim.rgn_desc;  --1116105
 
 --10. sub_region
 
@@ -777,7 +777,7 @@ FROM curated_integration.global_account_master gam
   JOIN atomic_legacy.dwt12011_aff_cntry_mst ndt_aff_cntry_mst ON LPAD (mdms.business_entity_code,'3','0') = ndt_aff_cntry_mst.amway_cntry_cd
   JOIN atomic_legacy.dwt05024_sub_rgn_dim ndt_sub_rgn_dim ON ndt_aff_cntry_mst.sub_rgn_key_no = ndt_sub_rgn_dim.sub_rgn_key_no
 WHERE mdms.business_entity_code <> ''
-AND   gam.sub_region = ndt_sub_rgn_dim.sub_rgn_desc;  --604480
+AND   gam.sub_region = ndt_sub_rgn_dim.sub_rgn_desc;  --20090504
 
 --LEGACY
 SELECT COUNT(*)
@@ -790,7 +790,7 @@ FROM curated_integration.global_account_master gam
   JOIN atomic_legacy.dwt05024_sub_rgn_dim ndt_sub_rgn_dim ON ndt_aff_cntry_mst.sub_rgn_key_no = ndt_sub_rgn_dim.sub_rgn_key_no
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   legacy.distb_cntry <> ''
-AND   gam.sub_region = ndt_sub_rgn_dim.sub_rgn_desc;  --89742352
+AND   gam.sub_region = ndt_sub_rgn_dim.sub_rgn_desc;  --71942195
 
 --ATLAS
 SELECT COUNT(*)
@@ -809,7 +809,7 @@ FROM curated_integration.global_account_master gam
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   (legacy.intgrt_ctl_aff IS NULL OR TRIM(legacy.distb_cntry) = '')
 AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
-AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.sub_region = ndt_sub_rgn_dim.sub_rgn_desc;  --1087477
+AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.sub_region = ndt_sub_rgn_dim.sub_rgn_desc;  --1116105
 
 --11. iso_currency_code
 
@@ -833,7 +833,7 @@ SELECT COUNT(*)
 FROM curated_integration.global_account_master gam
   JOIN atomic.dwv41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
 WHERE mdms.business_entity_code <> ''
-AND   gam.iso_currency_code = mdms.iso_currency_code;  --604480
+AND   gam.iso_currency_code = mdms.iso_currency_code;  --20090504
 
 --LEGACY
 SELECT COUNT(*)
@@ -844,7 +844,7 @@ FROM curated_integration.global_account_master gam
 	LEFT JOIN atomic.dwv41141_account_dtl mdms ON CONCAT (LPAD (legacy.intgrt_ctl_aff,'3','0'),legacy.distb_nbr) = CONCAT (LPAD (mdms.affiliate_code,'3','0'),mdms.abo_no)
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   legacy.distb_cntry <> '' 
-AND   gam.iso_currency_code = legacy.iso_currency_code;  --89742352
+AND   gam.iso_currency_code = legacy.distb_curcy;  --71942195
 
 --ATLAS
 SELECT COUNT(*)
@@ -861,7 +861,7 @@ FROM curated_integration.global_account_master gam
 WHERE (mdms.affiliate_code IS NULL OR TRIM(mdms.business_entity_code) = '')
 AND   (legacy.intgrt_ctl_aff IS NULL OR TRIM(legacy.distb_cntry) = '')
 AND   TRIM(atlas.imc_type) <> 'INTERCOMPANY'
-AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.iso_currency_code = ndt_aff_cntry_mst.dflt_iso_curcy_cd;  --1087477
+AND   TRIM(tmp.amway_cntry_cd) <> '' AND gam.iso_currency_code = ndt_aff_cntry_mst.dflt_iso_curcy_cd;  --1116105
 
 --12. language_code
 
@@ -881,15 +881,15 @@ FROM curated_integration.global_account_master gam WHERE gam.language_code ~ '^[
 SELECT COUNT(*)
 FROM curated_integration.global_account_master gam
   JOIN atomic.dwv41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
-WHERE mdms.business_entity_code <> '' AND gam.language_code = LOWER(mdms.language_code);  --604436
+WHERE mdms.business_entity_code <> '' AND gam.language_code = LOWER(mdms.language_code);  --20077642
 
 SELECT COUNT(*)
 FROM curated_integration.global_account_master gam
   JOIN atomic.dwv41141_account_dtl mdms ON gam.global_account_id = CONCAT (LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
   JOIN common_dims.w_country_dim ndt_country_dim ON LPAD(mdms.business_entity_code,3,'0') = ndt_country_dim.amway_country_code
-WHERE mdms.business_entity_code <> '' AND (mdms.language_code = '' OR mdms.language_code IS NULL) AND gam.language_code = LOWER(ndt_country_dim.default_iso_language_code);  --45
+WHERE mdms.business_entity_code <> '' AND (mdms.language_code = '' OR mdms.language_code IS NULL) AND gam.language_code = LOWER(ndt_country_dim.default_iso_language_code);  --12862
 
-SELECT 604436 + 45; --604481
+SELECT 20077642 + 12862; --20090504
 
 --LEGACY
 SELECT COUNT(*)
@@ -898,9 +898,9 @@ FROM curated_integration.global_account_master gam
   JOIN atomic.wwt01020_aff_mst am_valid_aff
 		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.intgrt_ctl_aff) = '' THEN 0	ELSE legacy.intgrt_ctl_aff::SMALLINT END
 	LEFT JOIN atomic.dwv41141_account_dtl mdms ON CONCAT ( LPAD( legacy.intgrt_ctl_aff,'3','0'),legacy.distb_nbr) = CONCAT (LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
-	JOIN atomic_legacy.dwt41048_dlngdta ndt_dwt41048_dlngdta ON LOWER( legacy.language_code) = LOWER( ndt_dwt41048_dlngdta.lang_cd) AND legacy.country_code = ndt_dwt41048_dlngdta.intgrt_cntry_cd
+	JOIN atomic_legacy.dwt41048_dlngdta ndt_dwt41048_dlngdta ON LOWER( legacy.distb_lang) = LOWER( ndt_dwt41048_dlngdta.lang_cd) AND legacy.distb_cntry = ndt_dwt41048_dlngdta.intgrt_cntry_cd
 WHERE (mdms.affiliate_code IS NULL OR mdms.business_entity_code = '')
-AND   TRIM(legacy.distb_cntry) <> '' AND gam.language_code = LOWER( ndt_dwt41048_dlngdta.iso_lang_cd);   --89693247
+AND   TRIM(legacy.distb_cntry) <> '' AND gam.language_code = LOWER( ndt_dwt41048_dlngdta.iso_lang_cd);   --7989816
 
 SELECT COUNT(*)
 FROM curated_integration.global_account_master gam
@@ -908,12 +908,12 @@ FROM curated_integration.global_account_master gam
   JOIN atomic.wwt01020_aff_mst am_valid_aff
 		ON am_valid_aff.aff_id = CASE WHEN TRIM(legacy.intgrt_ctl_aff) = '' THEN 0	ELSE legacy.intgrt_ctl_aff::SMALLINT END
 	LEFT JOIN atomic.dwv41141_account_dtl mdms ON CONCAT ( LPAD( legacy.intgrt_ctl_aff,'3','0'),legacy.distb_nbr) = CONCAT (LPAD( mdms.affiliate_code,'3','0'),mdms.abo_no)
-	LEFT JOIN atomic_legacy.dwt41048_dlngdta ndt_dwt41048_dlngdta ON LOWER( legacy.language_code) = LOWER( ndt_dwt41048_dlngdta.lang_cd) AND legacy.country_code = ndt_dwt41048_dlngdta.intgrt_cntry_cd
+	LEFT JOIN atomic_legacy.dwt41048_dlngdta ndt_dwt41048_dlngdta ON LOWER( legacy.distb_lang) = LOWER( ndt_dwt41048_dlngdta.lang_cd) AND legacy.distb_cntry = ndt_dwt41048_dlngdta.intgrt_cntry_cd
 	JOIN common_dims.w_country_dim ndt_country_dim ON LPAD(legacy.distb_cntry,3,'0') = ndt_country_dim.amway_country_code
 WHERE (mdms.affiliate_code IS NULL OR mdms.business_entity_code = '')
-AND   TRIM(legacy.distb_cntry) <> '' AND ndt_dwt41048_dlngdta.iso_lang_cd IS NULL AND gam.language_code = LOWER( ndt_country_dim.default_iso_language_code);  --99495
+AND   TRIM(legacy.distb_cntry) <> '' AND ndt_dwt41048_dlngdta.iso_lang_cd IS NULL AND gam.language_code = LOWER( ndt_country_dim.default_iso_language_code);  --18513
 
-select 89693247 + 99495;  --89792742
+select 7989816 + 18513;  --89792742
 
 
 --ATLAS
